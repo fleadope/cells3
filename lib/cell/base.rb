@@ -137,7 +137,7 @@ module Cell
   #   cells/user/user_form_de.html.erb
   #
   # If gettext is set to DE_de, the latter view will be chosen.
-  class Base
+  class Base 
     include ActionController::Helpers
     include ActionController::RequestForgeryProtection
     
@@ -151,7 +151,7 @@ module Cell
       # just RAILS_ROOT/app/cells, but you might want to add e.g.
       # RAILS_ROOT/app/views.
       def add_view_path(path)
-        self.view_paths << RAILS_ROOT + '/' + path
+        self.view_paths << File.join( Rails.root, path )
       end
       
       # Creates a cell instance of the class <tt>name</tt>Cell, passing through 
@@ -164,15 +164,15 @@ module Cell
       #   helper_method :link_to
       #   def link_to(name, options) ... end
       # makes the link_to controller method available in the view.
-      def helper_method(*methods)
-        methods.flatten.each do |method|
-          master_helper_module.module_eval <<-end_eval
-            def #{method}(*args, &block)
-              @cell.send(%(#{method}), *args, &block)
-            end
-          end_eval
-        end
-      end
+      #def helper_method(*methods)
+      #  methods.flatten.each do |method|
+      #    master_helper_module.module_eval <<-end_eval
+      #      def #{method}(*args, &block)
+      #        @cell.send(%(#{method}), *args, &block)
+      #      end
+      #    end_eval
+      #  end
+      #end
       
       # Return the default view for the given state on this cell subclass.
       # This is a file with the name of the state under a directory with the
@@ -226,8 +226,8 @@ module Cell
     class_inheritable_accessor :allow_forgery_protection
     self.allow_forgery_protection = true
     
-    class_inheritable_accessor :default_template_format
-    self.default_template_format = :html
+    class_inheritable_accessor :default_template_extension
+    self.default_template_extension = :html
     
     
     delegate :params, :session, :request, :logger, :to => :controller
@@ -271,7 +271,7 @@ module Cell
     #
     # ==== Options
     # * <tt>:view</tt> - Specifies the name of the view file to render. Defaults to the current state name.
-    # * <tt>:template_format</tt> - Allows using a format different to <tt>:html</tt>.
+    # * <tt>:template_extension</tt> - Allows using a format different to <tt>:html</tt>.
     # * <tt>:layout</tt> - If set to a valid filename inside your cell's view_paths, the current state view will be rendered inside the layout (as known from controller actions). Layouts should reside in <tt>app/cells/layouts</tt>.
     #
     # Example:
@@ -305,24 +305,24 @@ module Cell
       # make helpers available:
       include_helpers_in_class(view_class)   
       
-      # handle :layout, :template_format, :view
+      # handle :layout, :template_extension, :view
       render_opts = defaultize_render_options_for(opts, state)
       
       action_view.assigns         = assigns_for_view  # make instance vars available.
-      action_view.template_format = render_opts[:template_format]
+      action_view.template_extension = render_opts[:template_extension]
       
       template = find_family_view_for_state_with_caching(render_opts[:view], action_view)
+      
       ### TODO: cache family_view for this cell_name/state in production mode,
       ###   so we can save the call to possible_paths_for_state.
       render_opts[:file] = template unless render_opts[:file]
-      
-      action_view.render(render_opts)      
+      action_view.render_template(:_template => template, :_layout => render_opts[:layout]) 
     end
     
     # Defaultize the passed options from #render.
     def defaultize_render_options_for(opts, state)
       opts ||= {}
-      opts[:template_format]  ||= self.class.default_template_format
+      opts[:template_extension]  ||= self.class.default_template_extension
       opts[:view]             ||= state
       opts
     end
@@ -339,6 +339,7 @@ module Cell
         # we need to catch MissingTemplate, since we want to try for all possible
         # family views.
         begin
+
           if view = action_view.try_picking_template_for_path(template_path)
             return view
           end
@@ -349,14 +350,14 @@ module Cell
       raise missing_template_exception
     end
     
-    # In production mode, the view for a state/template_format is cached.
+    # In production mode, the view for a state/template_extension is cached.
     ### DISCUSS: ActionView::Base already caches results for #pick_template, so maybe
     ### we should just cache the family path for a state/format?
     def find_family_view_for_state_with_caching(state, action_view)
       return find_family_view_for_state(state, action_view) unless self.class.cache_configured?
       
       # in production mode:
-      key         = "#{state}/#{action_view.template_format}"
+      key         = "#{state}/#{action_view.template_extension}"
       state2view  = self.class.state2view_cache
       state2view[key] || state2view[key] = find_family_view_for_state(state, action_view)
     end
@@ -387,7 +388,7 @@ module Cell
     # When passed a copy of the ActionView::Base class, it
     # will mix in all helper classes for this cell in that class.
     def include_helpers_in_class(view_klass)
-      view_klass.send(:include, self.class.master_helper_module)
+      #view_klass.send(:include, self.class.master_helper_module)
     end
     
 
