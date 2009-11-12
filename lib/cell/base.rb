@@ -137,23 +137,12 @@ module Cell
   #   cells/user/user_form_de.html.erb
   #
   # If gettext is set to DE_de, the latter view will be chosen.
-  class Base 
-    include ActionController::Helpers
-    include ActionController::RequestForgeryProtection
-    
-    helper ApplicationHelper
-    
-    
+  class Base < AbstractController::Base 
+  
+    include AbstractController::RenderingController
     class << self
       attr_accessor :request_forgery_protection_token
-      
-      # A template file will be looked for in each view path. This is typically
-      # just RAILS_ROOT/app/cells, but you might want to add e.g.
-      # RAILS_ROOT/app/views.
-      def add_view_path(path)
-        self.view_paths << File.join( Rails.root, path )
-      end
-      
+
       # Creates a cell instance of the class <tt>name</tt>Cell, passing through 
       # <tt>opts</tt>.
       def create_cell_for(controller, name, opts={})
@@ -220,22 +209,16 @@ module Cell
       def cache_configured?; ::ActionController::Base.cache_configured?; end
     end
     
-    class_inheritable_array :view_paths, :instance_writer => false
-    self.view_paths = ActionView::PathSet.new
-    
     class_inheritable_accessor :allow_forgery_protection
     self.allow_forgery_protection = true
     
     class_inheritable_accessor :default_template_extension
     self.default_template_extension = :html
     
-    
     delegate :params, :session, :request, :logger, :to => :controller
-    
     
     attr_accessor :controller
     attr_reader   :state_name
-    
     
     def initialize(controller, options={})
       @controller = controller
@@ -250,21 +233,15 @@ module Cell
     # Render the given state.  You can pass the name as either a symbol or
     # a string.
     def render_state(state)
-      content = dispatch_state(state)
-      
-      return content if content.kind_of? String
-      
-      
       ### DISCUSS: are these vars really needed in state views?
-      @cell       = self
-      @state_name = state
+      #@cell       = self
+      #@state_name = state
       
-      render_view_for(content, state)
-    end
-    
-    # Call the state method.
-    def dispatch_state(state)
-      send(state)
+      #render_view_for(content, state)
+      process(state)
+      # TODO: don't render if state returned string
+      render :file => self.class.view_for_state(state)
+      self.response_body
     end
     
     # Render the view for the current state. Usually called at the end of a state method.
@@ -290,9 +267,9 @@ module Cell
     #
     # will also use the view <tt>my_first_state.html</tt> as template and even put it in the layout
     # <tt>metal</tt> that's located at <tt>$RAILS_ROOT/app/cells/layouts/metal.html.erb</tt>.
-    def render(opts={})
-      opts
-    end
+    #def render(opts={})
+    #  opts
+    #end
     
     # Render the view belonging to the given state. Will raise ActionView::MissingTemplate
     # if it can not find one of the requested view template. Note that this behaviour was
