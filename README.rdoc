@@ -21,6 +21,7 @@ Just as Rails 3.0 current Cells version is under heavy development so use it onl
 
 == What is done?
 
+* Rails 3.0 generators
 * Cell::Base inherits from AbstractController. Unneeded methods removed from Cell::Base
 * Rendering done via AbstractController::Rendering
 * Helpers available via AbstractController::Helpers
