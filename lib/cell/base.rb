@@ -224,13 +224,14 @@ module Cell
     # a string.
     def render_state(state)
       ### DISCUSS: are these vars really needed in state views?
-      #@cell       = self
-      #@state_name = state
+      @cell       = self
+      @state_name = state
       
       #render_view_for(content, state)
       process(state)
       # TODO: don't render if state returned string
-      render :file => self.class.view_for_state(state)
+      # Have to add following slash as path must be absolute
+      render :file => "/" + find_template_path
       self.response_body
     end
     
@@ -259,7 +260,7 @@ module Cell
     # <tt>metal</tt> that's located at <tt>$RAILS_ROOT/app/cells/layouts/metal.html.erb</tt>.
     #def render(opts={})
     #  opts
-    #end
+  #end
     
     # Render the view belonging to the given state. Will raise ActionView::MissingTemplate
     # if it can not find one of the requested view template. Note that this behaviour was
@@ -293,27 +294,10 @@ module Cell
     
     # Climbs up the inheritance hierarchy of the Cell, looking for a view 
     # for the current <tt>state</tt> in each level.
-    # As soon as a view file is found it is returned as an ActionView::Template 
-    # instance.
-    ### DISCUSS: moved to Cell::View#find_template in rainhead's fork:
-    def find_family_view_for_state(state, action_view)
-      missing_template_exception = nil
-      
-      possible_paths_for_state(state).each do |template_path|
-        # we need to catch MissingTemplate, since we want to try for all possible
-        # family views.
-        begin
-
-          if view = action_view.try_picking_template_for_path(template_path)
-            return view
-          end
-        rescue ::ActionView::MissingTemplate => missing_template_exception
-        end
-      end
-      
-      raise missing_template_exception
+    def find_template_path
+      possible_paths_for_state(state_name).detect { |path| view_paths.exists?( path, formats => [:"*/*"] ) }
     end
-    
+   
     # In production mode, the view for a state/template_extension is cached.
     ### DISCUSS: ActionView::Base already caches results for #pick_template, so maybe
     ### we should just cache the family path for a state/format?
