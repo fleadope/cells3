@@ -271,9 +271,9 @@ module Cell
       super(options, *args)
     end
     
-    def template_path(view)
+    def template_path(view, options)
       # Have to add following slash as path must be absolute
-      "/" + find_template_path(view)
+      "/" + find_template_path(view, options)
     end
 
     # Normalize the passed options from #render.
@@ -282,17 +282,17 @@ module Cell
       view = opts.delete(:view) || opts.delete(:action)
       formats = [template_format || self.class.default_template_extension]
       if view
-        opts[:file] = template_path(view)
+        opts[:file] = template_path(view, :formats => formats)
       elsif opts.empty?
-        opts[:file] = template_path(@state_name.to_s)
+        opts[:file] = template_path(@state_name.to_s, :formats => formats)
       end
       opts
     end
     
     # Climbs up the inheritance hierarchy of the Cell, looking for a view 
     # for the current <tt>state</tt> in each level.
-    def find_template_path(state)
-      possible_paths_for_state(state).detect { |path| view_paths.exists?( path, formats => [:"*/*"] ) }
+    def find_template_path(state, options)
+      possible_paths_for_state(state).detect { |path| view_paths.exists?( path, options ) }
     end
    
     # In production mode, the view for a state/template_extension is cached.
