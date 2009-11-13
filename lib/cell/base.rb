@@ -254,7 +254,7 @@ module Cell
     #      render :view => :my_first_state, :layout => "metal"
     #    end
     #
-    # will also use the view <tt>my_first_state.html</tt> as template and even put it in the layout
+    # will also use the view <tt>my_first_state.html.erb</tt> as template and even put it in the layout
     # <tt>metal</tt> that's located at <tt>$RAILS_ROOT/app/cells/layouts/metal.html.erb</tt>.
     #
     # === Render options
@@ -265,6 +265,17 @@ module Cell
     #   render :text => 'Hello Cells'
     #   render :inline => 'Welcome'
     #   render :file => 'another_cell/foo'
+    #
+    # But you're not obligated to use render at all.
+    #
+    # class BarCell < Cell::Base
+    # 
+    #   def bar_state
+    #   end
+    #
+    # end
+    # 
+    # <tt>bar_state.html.erb</tt> will be rendered.
     #
     def render(options = {}, *args)
       normalize_render_options(options)
