@@ -182,7 +182,7 @@ module Cell
       def cell_name
         name.underscore.sub(/_cell/, '')
       end
-  
+ 
       # Given a cell name, finds the class that belongs to it.
       #
       # Example:
@@ -218,7 +218,8 @@ module Cell
     def cell_name
       self.class.cell_name
     end
-
+  
+    alias :controller_path :cell_name
 
     # Render the given state.  You can pass the name as either a symbol or
     # a string.

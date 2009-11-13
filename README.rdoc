@@ -13,6 +13,12 @@ Just as Rails 3.0 current Cells version is under heavy development so use it onl
 * Agnosticism - bring it from Rails 3.0 core
   Ie. you don't have to use ERB as template engine. Just choose your favourite.
 
+* Code cleanup 
+  Use ready rails modules to not reinvent the wheel  
+
+* Render partials without wild hacks
+  Cells 2.3 messes up in ActionView::Base to render partial.
+
 * Backward compatibility
   Try save as much as possible compatibility with Cells 2.3.
 
@@ -23,6 +29,7 @@ Just as Rails 3.0 current Cells version is under heavy development so use it onl
 
 * Rails 3.0 generators
 * Cell::Base inherits from AbstractController. Unneeded methods removed from Cell::Base
+* Don't need to mess up in ActionView::Base to render partial
 * Rendering done via AbstractController::Rendering
 * Helpers available via AbstractController::Helpers
 * Views inheritance is done without need to catch exceptions
