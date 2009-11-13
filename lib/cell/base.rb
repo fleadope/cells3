@@ -227,19 +227,17 @@ module Cell
       @cell       = self
       @state_name = state
       
-      #render_view_for(content, state)
       process(state)
       # TODO: don't render if state returned string
-      # Have to add following slash as path must be absolute
-      render :file => "/" + find_template_path
+      render unless self.response_body # Implicit render 
       self.response_body
     end
     
     # Render the view for the current state. Usually called at the end of a state method.
     #
-    # ==== Options
+    # ==== Cells-specific Options
     # * <tt>:view</tt> - Specifies the name of the view file to render. Defaults to the current state name.
-    # * <tt>:template_extension</tt> - Allows using a format different to <tt>:html</tt>.
+    # * <tt>:template_format</tt> - Allows using a format different to <tt>:html</tt>.
     # * <tt>:layout</tt> - If set to a valid filename inside your cell's view_paths, the current state view will be rendered inside the layout (as known from controller actions). Layouts should reside in <tt>app/cells/layouts</tt>.
     #
     # Example:
@@ -258,44 +256,43 @@ module Cell
     #
     # will also use the view <tt>my_first_state.html</tt> as template and even put it in the layout
     # <tt>metal</tt> that's located at <tt>$RAILS_ROOT/app/cells/layouts/metal.html.erb</tt>.
-    #def render(opts={})
-    #  opts
-  #end
-    
-    # Render the view belonging to the given state. Will raise ActionView::MissingTemplate
-    # if it can not find one of the requested view template. Note that this behaviour was
-    # introduced in cells 2.3 and replaces the former warning message.
-    def render_view_for(opts, state)
-      view_class  = Class.new(Cell::View)
-      action_view = view_class.new(self.class.view_paths, {}, @parent_controller)
-      action_view.cell = self
-      
-      # handle :layout, :template_extension, :view
-      render_opts = defaultize_render_options_for(opts, state)
-      
-      action_view.assigns         = assigns_for_view  # make instance vars available.
-      action_view.template_extension = render_opts[:template_extension]
-      
-      template = find_family_view_for_state_with_caching(render_opts[:view], action_view)
-      
-      ### TODO: cache family_view for this cell_name/state in production mode,
-      ###   so we can save the call to possible_paths_for_state.
-      render_opts[:file] = template unless render_opts[:file]
-      action_view.render_template(:_template => template, :_layout => render_opts[:layout]) 
+    #
+    # === Render options
+    # You can use usual render options as weel
+    #
+    # Example:
+    #   render :action => 'foo'
+    #   render :text => 'Hello Cells'
+    #   render :inline => 'Welcome'
+    #   render :file => 'another_cell/foo'
+    #
+    def render(options = {}, *args)
+      normalize_render_options(options)
+      super(options, *args)
     end
     
-    # Defaultize the passed options from #render.
-    def defaultize_render_options_for(opts, state)
-      opts ||= {}
-      opts[:template_extension]  ||= self.class.default_template_extension
-      opts[:view]             ||= state
+    def template_path(view)
+      # Have to add following slash as path must be absolute
+      "/" + find_template_path(view)
+    end
+
+    # Normalize the passed options from #render.
+    def normalize_render_options(opts)
+      template_format = opts.delete(:template_format)
+      view = opts.delete(:view) || opts.delete(:action)
+      formats = [template_format || self.class.default_template_extension]
+      if view
+        opts[:file] = template_path(view)
+      elsif opts.empty?
+        opts[:file] = template_path(@state_name.to_s)
+      end
       opts
     end
     
     # Climbs up the inheritance hierarchy of the Cell, looking for a view 
     # for the current <tt>state</tt> in each level.
-    def find_template_path
-      possible_paths_for_state(state_name).detect { |path| view_paths.exists?( path, formats => [:"*/*"] ) }
+    def find_template_path(state)
+      possible_paths_for_state(state).detect { |path| view_paths.exists?( path, formats => [:"*/*"] ) }
     end
    
     # In production mode, the view for a state/template_extension is cached.
