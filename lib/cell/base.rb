@@ -140,6 +140,10 @@ module Cell
   class Base < AbstractController::Base 
   
     include AbstractController::RenderingController
+    include AbstractController::Helpers
+
+    helper ApplicationHelper
+
     class << self
       attr_accessor :request_forgery_protection_token
 
@@ -148,20 +152,6 @@ module Cell
       def create_cell_for(controller, name, opts={})
         class_from_cell_name(name).new(controller, opts)
       end
-      
-      # Declare a controller method as a helper.  For example,
-      #   helper_method :link_to
-      #   def link_to(name, options) ... end
-      # makes the link_to controller method available in the view.
-      #def helper_method(*methods)
-      #  methods.flatten.each do |method|
-      #    master_helper_module.module_eval <<-end_eval
-      #      def #{method}(*args, &block)
-      #        @cell.send(%(#{method}), *args, &block)
-      #      end
-      #    end_eval
-      #  end
-      #end
       
       # Return the default view for the given state on this cell subclass.
       # This is a file with the name of the state under a directory with the
@@ -215,13 +205,13 @@ module Cell
     class_inheritable_accessor :default_template_extension
     self.default_template_extension = :html
     
-    delegate :params, :session, :request, :logger, :to => :controller
+    delegate :params, :session, :request, :logger, :to => :parent_controller
     
-    attr_accessor :controller
+    attr_accessor :parent_controller
     attr_reader   :state_name
     
     def initialize(controller, options={})
-      @controller = controller
+      @parent_controller = controller
       @opts       = options
     end
     
@@ -276,11 +266,8 @@ module Cell
     # introduced in cells 2.3 and replaces the former warning message.
     def render_view_for(opts, state)
       view_class  = Class.new(Cell::View)
-      action_view = view_class.new(self.class.view_paths, {}, @controller)
+      action_view = view_class.new(self.class.view_paths, {}, @parent_controller)
       action_view.cell = self
-      
-      # make helpers available:
-      include_helpers_in_class(view_class)   
       
       # handle :layout, :template_extension, :view
       render_opts = defaultize_render_options_for(opts, state)
@@ -362,16 +349,9 @@ module Cell
     end    
     
     
-    # When passed a copy of the ActionView::Base class, it
-    # will mix in all helper classes for this cell in that class.
-    def include_helpers_in_class(view_klass)
-      #view_klass.send(:include, self.class.master_helper_module)
-    end
-    
-
     # Defines the instance variables that should <em>not</em> be copied to the 
     # View instance.
-    def ivars_to_ignore;  ['@controller']; end
+    def ivars_to_ignore;  ['@parent_controller']; end
     
   end
 end
