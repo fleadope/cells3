@@ -14,7 +14,7 @@ Just as Rails 3.0 current Cells version is under heavy development so use it onl
   Ie. you don't have to use ERB as template engine. Just choose your favourite.
 
 * Backward compatibility
-  Full or almost full compatibility with Cells 2.3.
+  Try save as much as possible compatibility with Cells 2.3.
 
 * Performance
   Try to improve (good anyway) performance. Provide appropriate tests.
@@ -32,6 +32,7 @@ Just as Rails 3.0 current Cells version is under heavy development so use it onl
 * RequestForgeryProtection (but is it really needed here?)
 * Backward compatitbility: 
   * parent controller accessible as #parent_controller, not #controller as always
+  * returning string from cell state doesn't render it. Need explicity render :text => 'foobar'
 
 == Motivation
 

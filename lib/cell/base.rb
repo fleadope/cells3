@@ -228,7 +228,7 @@ module Cell
       @state_name = state
       
       process(state)
-      # TODO: don't render if state returned string
+      
       render unless self.response_body # Implicit render 
       self.response_body
     end
