@@ -2,7 +2,7 @@
 
 Just as Rails 3.0 current Cells version is under heavy development so use it only if you're curious about progress.
 
-== What will be done
+== What will be done?
 
 * Build Cells on top of AbstractController.
   Thanks that adding features like helpers, callbacks, caching will be as simple as including a module.
@@ -24,10 +24,10 @@ Just as Rails 3.0 current Cells version is under heavy development so use it onl
 * Cell::Base inherits from AbstractController. Unneeded methods removed from Cell::Base
 * Rendering done via AbstractController::Rendering
 * Helpers available via AbstractController::Helpers
+* Views inheritance is done without need to catch exceptions
 
 == What is broken?
 
-* Views inheritance
 * Support for layouts
 * RequestForgeryProtection (but is it really needed here?)
 * Backward compatitbility: 
