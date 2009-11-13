@@ -322,20 +322,11 @@ module Cell
       self.class.find_class_view_for_state(state).reverse!
     end
     
-    # Prepares the hash {instance_var => value, ...} that should be available
-    # in the ActionView when rendering the state view.
-    def assigns_for_view
-      assigns = {}
-      (self.instance_variables - ivars_to_ignore).each do |k|
-       assigns[k[1..-1]] = instance_variable_get(k)
-      end
-      assigns
-    end    
-    
-    
     # Defines the instance variables that should <em>not</em> be copied to the 
     # View instance.
-    def ivars_to_ignore;  ['@parent_controller']; end
+    def protected_instance_variables  
+      ['@parent_controller'] 
+    end
     
   end
 end
