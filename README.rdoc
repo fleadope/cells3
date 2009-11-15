@@ -33,10 +33,11 @@ Just as Rails 3.0 current Cells version is under heavy development so use it onl
 * Rendering done via AbstractController::Rendering
 * Helpers available via AbstractController::Helpers
 * Views inheritance is done without need to catch exceptions
+* Layouts works again
+* Introduced Cell::Initializer. Choose which features you would like to use.
 
 == What is broken?
 
-* Support for layouts
 * RequestForgeryProtection (but is it really needed here?)
 * Backward compatitbility: 
   * parent controller accessible as #parent_controller, not #controller as always

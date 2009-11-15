@@ -25,12 +25,19 @@
 
 # load the baby:
 Cell::Base
+
+# This section should be moved to config/initializers/cells.rb
+Cell::Initializer.run do |cell|
+  cell.use_layouts = true
+  cell.use_caching = true
+end
+# End of section
+
 require 'rails_extensions'
 
 
 ActionController::Base.class_eval do  include Cell::ActionController end
 ActionView::Base.class_eval       do  include Cell::ActionView end
-Cell::Base.class_eval             do  include Cell::Caching end
 
 
 ActiveSupport::Dependencies.load_paths << File.join( RAILS_ROOT, "app", "cells" )
