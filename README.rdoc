@@ -2,28 +2,35 @@
 
 Just as Rails 3.0 current Cells version is under heavy development so use it only if you're curious about progress.
 
+== Setup with Rails 3.0pre
+
+Go to link:http://github.com/mlomnicki/rails3_setup and follow the instructions.
+
 == What will be done?
 
 * Build Cells on top of AbstractController.
-  * Thanks that adding features like helpers, callbacks, caching will be as simple as including a module.
+    Thanks that adding features like helpers, callbacks, caching will be as simple as including a module.
 
 * Make cells strongly configurable
-  * So you can use only these features you really need letting cells be as lightweight as possible.
+    So you can use only these features you really need letting cells be as lightweight as possible.
 
 * Agnosticism - bring it from Rails 3.0 core
-  * Ie. you don't have to use ERB as template engine. Just choose your favourite.
+    Ie. you don't have to use ERB as template engine. Just choose your favourite.
+
+* Introduce new render API[link:http://rubyforge.org/pipermail/cells-talk/2009-November/000155.html]
+    render :cell, :state, :view, :collection     
 
 * Code cleanup 
-  * Use ready rails modules to not reinvent the wheel  
+    Use ready rails modules to not reinvent the wheel  
 
 * Render partials without wild hacks
-  * Cells 2.3 messes up in ActionView::Base to render partial.
+    Cells 2.3 messes up in ActionView::Base to render partial.
 
 * Backward compatibility
-  * Try save as much as possible compatibility with Cells 2.3.
+    Try save as much as possible compatibility with Cells 2.3.
 
 * Performance
-  * Try to improve (good anyway) performance. Provide appropriate tests.
+    Try to improve (good anyway) performance. Provide appropriate tests.
 
 == What is done?
 
@@ -34,7 +41,6 @@ Just as Rails 3.0 current Cells version is under heavy development so use it onl
 * Rendering done via AbstractController::Rendering
 * Helpers available via AbstractController::Helpers
 * Views inheritance is done without need to catch exceptions
-* Layouts works again
 * Introduced Cell::Initializer. Choose which features you would like to use.
 
 == What is broken?
