@@ -218,6 +218,9 @@ module Cell
   
     alias :controller_path :cell_name
 
+    # dispatch_state is aliased for apotomo compatibility
+    alias :dispatch_state :process
+
     # Render the given state.  You can pass the name as either a symbol or
     # a string.
     def render_state(state)
