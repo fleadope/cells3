@@ -286,13 +286,14 @@ module Cell
     end
 
     # Normalize the passed options from #render.
+    # TODO: that method is screwed up. Rewrite
     def normalize_render_options(opts)
       template_format = opts.delete(:template_format)
       view = opts.delete(:view) || opts.delete(:action)
       formats = [template_format || self.class.default_template_extension]
       if view
         opts[:file] = template_path(view, :formats => formats)
-      elsif opts.empty?
+      elsif opts.except(:layout).empty?
         opts[:file] = template_path(@state_name.to_s, :formats => formats)
       end
       opts
