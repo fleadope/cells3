@@ -2,9 +2,7 @@
 
 Just as Rails 3.0 current Cells version is under heavy development so use it only if you're curious about progress.
 
-== Setup with Rails 3.0pre
-
-Go to link:http://github.com/mlomnicki/rails3_setup and follow the instructions.
+Go to http://github.com/mlomnicki/rails3_setup and follow the instructions.
 
 == What will be done?
 
