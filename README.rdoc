@@ -4,7 +4,7 @@ Just as Rails 3.0 current Cells version is under heavy development so use it onl
 
 == Setup with Rails 3.0pre
 
-Go to http://github.com/mlomnicki/rails3_setup and follow the instructions.
+Go to link:http://github.com/mlomnicki/rails3_setup and follow the instructions.
 
 == What will be done?
 
@@ -16,9 +16,6 @@ Go to http://github.com/mlomnicki/rails3_setup and follow the instructions.
 
 * Agnosticism - bring it from Rails 3.0 core
   * Ie. you don't have to use ERB as template engine. Just choose your favourite.
-
-* Introduce new render {API}[link:http://rubyforge.org/pipermail/cells-talk/2009-November/000155.html]
-  * render :cell, :state, :view, :collection     
 
 * Code cleanup 
   * Use ready rails modules to not reinvent the wheel  
