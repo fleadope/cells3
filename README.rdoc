@@ -2,6 +2,8 @@
 
 Just as Rails 3.0 current Cells version is under heavy development so use it only if you're curious about progress.
 
+== Working app setup
+
 Go to http://github.com/mlomnicki/rails3_setup and follow the instructions.
 
 == What will be done?
@@ -18,8 +20,8 @@ Go to http://github.com/mlomnicki/rails3_setup and follow the instructions.
 * Code cleanup 
   * Use ready rails modules to not reinvent the wheel  
 
-* Render partials without wild hacks
-  * Cells 2.3 messes up in ActionView::Base to render partial.
+* New render API
+  * more or less described in thread http://rubyforge.org/pipermail/cells-talk/2009-November/000155.html
 
 * Backward compatibility
   * Try save as much as possible compatibility with Cells 2.3.
