@@ -42,7 +42,7 @@ ActionController::Base.class_eval do  include Cell::ActionController end
 ActionView::Base.class_eval       do  include Cell::ActionView end
 
 
-ActiveSupport::Dependencies.load_paths << File.join( RAILS_ROOT, "app", "cells" )
+ActiveSupport::Dependencies.load_paths << File.join( Rails.root, "app", "cells" )
 
 # A template file will be looked for in each view path. This is typically
 # just RAILS_ROOT/app/cells, but you might want to add e.g.
