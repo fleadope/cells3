@@ -140,9 +140,6 @@ module Cell
   class Base < AbstractController::Base 
   
     include AbstractController::RenderingController
-    include AbstractController::Helpers
-
-    helper ApplicationHelper
 
     class << self
       attr_accessor :request_forgery_protection_token

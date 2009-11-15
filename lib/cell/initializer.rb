@@ -13,7 +13,6 @@ module Cell
   module Initializer 
 
     class << self
-      attr_reader :use_layouts, :use_caching
 
       def run
         yield self
@@ -21,6 +20,20 @@ module Cell
 
       def use_layouts=(enable)
         use_feature(AbstractController::Layouts, enable)
+      end
+
+      def use_helpers=(enable)
+        use_feature(AbstractController::Helpers, enable)
+        #TODO: discuss we should enable ApplicationHelper by default
+        #maybe introduce something like
+        # cell.use_helpers ApplicationHelper, NewsHelper
+        # cell.use_helpers :default
+        # cell.use_helpers :all
+        Cell::Base.helper ApplicationHelper 
+      end
+
+      def use_filters=(enable)
+        use_feature(AbstractController::Callbacks, enable)
       end
 
       def use_caching=(enable)

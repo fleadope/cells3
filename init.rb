@@ -30,6 +30,8 @@ Cell::Base
 Cell::Initializer.run do |cell|
   cell.use_layouts = true
   cell.use_caching = true
+  cell.use_filters = true
+  cell.use_helpers = true
 end
 # End of section
 
