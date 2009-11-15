@@ -46,7 +46,7 @@ Cell::Base.append_view_path "app/cells/layouts"
 # process cells in plugins ("engine-cells").
 # thanks to Tore Torell for making me aware of the initializer instance here:
 config.after_initialize do
-  config.loaded_plugins.each do |plugin|
+  config.plugins.each do |plugin|
     engine_cells_dir = File.join([plugin.directory, "app/cells"])
     next unless plugin.engine?
     next unless File.exists?(engine_cells_dir)
@@ -59,5 +59,5 @@ config.after_initialize do
     unless config.reload_plugins?
       ActiveSupport::Dependencies.load_once_paths << engine_cells_dir
     end
-  end
+  end if config.plugins
 end
