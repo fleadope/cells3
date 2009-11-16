@@ -13,6 +13,15 @@ module Cell
   module Initializer 
 
     class << self
+      
+      def cells_dir
+        File.join( 'app', 'cells' )
+      end
+
+      def cells_layouts_dir
+        File.join( cells_dir, 'layouts' )
+      end
+
 
       def run
         yield self

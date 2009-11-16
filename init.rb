@@ -42,21 +42,21 @@ ActionController::Base.class_eval do  include Cell::ActionController end
 ActionView::Base.class_eval       do  include Cell::ActionView end
 
 
-ActiveSupport::Dependencies.load_paths << File.join( Rails.root, "app", "cells" )
+ActiveSupport::Dependencies.load_paths << Rails.root.join( Cell::Initializer.cells_dir )
 
 # A template file will be looked for in each view path. This is typically
 # just RAILS_ROOT/app/cells, but you might want to add e.g.
 # RAILS_ROOT/app/views.
-Cell::Base.append_view_path "app/cells"
+Cell::Base.append_view_path Cell::Initializer.cells_dir
 ### DISCUSS: do we need shared layouts for different cells?
-Cell::Base.append_view_path "app/cells/layouts"
+Cell::Base.append_view_path Cell::Initializer.cells_layouts_dir
 
 
 # process cells in plugins ("engine-cells").
 # thanks to Tore Torell for making me aware of the initializer instance here:
 config.after_initialize do
   config.plugins.each do |plugin|
-    engine_cells_dir = File.join([plugin.directory, "app/cells"])
+    engine_cells_dir = File.join([plugin.directory, Cell::Initializer.cells_dir])
     next unless plugin.engine?
     next unless File.exists?(engine_cells_dir)
     

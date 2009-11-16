@@ -194,7 +194,8 @@ module Cell
       end
       
       def cache_configured?; ::ActionController::Base.cache_configured?; end
-    end
+
+   end
     
     class_inheritable_accessor :allow_forgery_protection
     self.allow_forgery_protection = true
