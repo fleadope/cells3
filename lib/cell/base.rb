@@ -201,7 +201,16 @@ module Cell
     
     class_inheritable_accessor :default_template_extension
     self.default_template_extension = :html
-    
+   
+    # Compatibility fix. 
+    # default_template_extension is used instead of default_template_format 
+    # because rails 3.0 convetion is template_extension and not template_format
+    # But should we care about that?
+    class << self
+      alias :default_template_format :default_template_extension
+      alias :default_template_format= :default_template_extension=
+    end
+
     delegate :params, :session, :request, :logger, :to => :parent_controller
     
     attr_accessor :parent_controller
@@ -224,11 +233,12 @@ module Cell
     # Render the given state.  You can pass the name as either a symbol or
     # a string.
     def render_state(state)
+      content = process(state)
+      return content if content.is_a?(String)
+      
       ### DISCUSS: are these vars really needed in state views?
       @cell       = self
       @state_name = state
-      
-      process(state)
       
       render unless self.response_body # Implicit render 
       self.response_body
@@ -285,7 +295,7 @@ module Cell
     
     def template_path(view, options)
       # Have to add following slash as path must be absolute
-      "/" + find_template_path(view, options)
+      "/#{find_template_path(view, options)}"
     end
 
     # Normalize the passed options from #render.
@@ -305,7 +315,9 @@ module Cell
     # Climbs up the inheritance hierarchy of the Cell, looking for a view 
     # for the current <tt>state</tt> in each level.
     def find_template_path(state, options)
-      possible_paths_for_state(state).detect { |path| view_paths.exists?( path, options ) }
+      returning possible_paths_for_state(state).detect { |path| view_paths.exists?( path, options ) } do |path|
+        raise ::ActionView::MissingTemplate.new(view_paths, "#{state.to_s}") unless path
+      end
     end
    
     # In production mode, the view for a state/template_extension is cached.
