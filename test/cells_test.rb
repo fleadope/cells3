@@ -253,15 +253,6 @@ class CellsTest < ActionController::TestCase
   end
   
   
-  # test Cell::View -------------------------------------------------------------
-  
-  def test_find_family_view_for_state
-    t = MyChildCell.new(@controller)
-    tpl = t.find_family_view_for_state(:bye, Cell::View.new(["#{RAILS_ROOT}/vendor/plugins/cells/test/cells"], {}, @controller))
-    assert_equal "my_mother/bye.html.erb", tpl.path
-  end
-  
-
   ### API test (unit) -----------------------------------------------------------
   def test_cell_name
     cell_one = CellsTestOneCell.new(@controller)
