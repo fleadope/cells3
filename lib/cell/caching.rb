@@ -120,12 +120,12 @@ module Cell::Caching
   
   def read_fragment(key, cache_options = nil) #:nodoc:
     returning self.class.cache_store.read(key, cache_options) do |content|
-      @controller.logger.debug "Cell Cache hit: #{key}" unless content.blank?
+      logger.debug "Cell Cache hit: #{key}" unless content.blank?
     end
   end
  
   def write_fragment(key, content, cache_opts = nil) #:nodoc:
-    @controller.logger.debug "Cell Cache miss: #{key}"
+    logger.debug "Cell Cache miss: #{key}"
     self.class.cache_store.write(key, content, cache_opts)
     content
   end
