@@ -307,7 +307,7 @@ module Cell
       if view
         opts[:file] = template_path(view, :formats => formats)
       elsif opts.except(:layout).empty?
-        opts[:file] = template_path(@state_name.to_s, :formats => formats)
+        opts[:file] = template_path(action_name, :formats => formats)
       end
       opts
     end
@@ -316,7 +316,7 @@ module Cell
     # for the current <tt>state</tt> in each level.
     def find_template_path(state, options)
       returning possible_paths_for_state(state).detect { |path| view_paths.exists?( path, options ) } do |path|
-        raise ::ActionView::MissingTemplate.new(view_paths, "#{state.to_s}") unless path
+        raise ::ActionView::MissingTemplate.new(view_paths, state.to_s) unless path
       end
     end
    
