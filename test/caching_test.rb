@@ -14,7 +14,7 @@ class CellsCachingTest < Test::Unit::TestCase
   
   def setup
     super
-    @controller.session= {}
+    @controller.session.clear
     @cc = CachingCell.new(@controller)
     @c2 = AnotherCachingCell.new(@controller)
   end
@@ -213,7 +213,7 @@ class CachingCell < Cell::Base
   cache :cached_state
   
   def cached_state
-    cnt = controller.session[:cache_count]
+    cnt = parent_controller.session[:cache_count]
     cnt ||= 0
     cnt += 1
     "#{cnt} should remain the same forever!"
