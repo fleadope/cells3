@@ -199,19 +199,11 @@ module Cell
     
     class_inheritable_accessor :allow_forgery_protection
     self.allow_forgery_protection = true
-    
-    class_inheritable_accessor :default_template_extension
-    self.default_template_extension = :html
    
-    # Compatibility fix. 
-    # default_template_extension is used instead of default_template_format 
-    # because rails 3.0 convetion is template_extension and not template_format
-    # But should we care about that?
-    class << self
-      alias :default_template_format :default_template_extension
-      alias :default_template_format= :default_template_extension=
-    end
-
+    # We should use respond_to instead of that
+    class_inheritable_accessor :default_template_format
+    self.default_template_format = :html
+   
     delegate :params, :session, :request, :logger, :to => :parent_controller
     
     attr_accessor :parent_controller
