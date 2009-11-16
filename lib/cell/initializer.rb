@@ -22,7 +22,6 @@ module Cell
         File.join( cells_dir, 'layouts' )
       end
 
-
       def run
         yield self
       end

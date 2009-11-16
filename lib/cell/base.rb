@@ -241,8 +241,11 @@ module Cell
       @cell       = self
       @state_name = state
       
-      render unless self.response_body # Implicit render 
-      self.response_body
+      output = self.response_body || render # Implicit render if not render not called explicite
+      # Allow render_state be called twice or more 
+      # So we can render different state without recreating cell
+      self.response_body = nil
+      output
     end
     
     # Render the view for the current state. Usually called at the end of a state method.
