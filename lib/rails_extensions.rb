@@ -27,7 +27,6 @@ module Cell
     #     <label>password: <input name="user[password]" /></label>
     #   </div>
     def render_cell(name, state, opts = {})
-      opts.merge!( :form_authenticity_token => form_authenticity_token ) if protect_against_forgery?
       cell = Cell::Base.create_cell_for(@controller, name, opts)
       cell.render_state(state)
     end
@@ -41,8 +40,7 @@ module Cell
     # Equivalent to ActionController#render_to_string, except it renders a cell
     # rather than a regular templates.
     def render_cell(name, state, opts={})
-      opts.merge!( :form_authenticity_token => form_authenticity_token ) if protect_against_forgery?
-      cell = Cell::Base.create_cell_for(self, name, { :form_authenticity_token => (form_authenticity_token if protect_against_forgery?) }.merge( opts || {} ))
+      cell = Cell::Base.create_cell_for(self, name, opts) 
       return cell.render_state(state)
     end
     
