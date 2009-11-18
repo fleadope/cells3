@@ -29,6 +29,9 @@ Go to http://github.com/mlomnicki/rails3_setup and follow the instructions.
 * Performance
   * Try to improve (good anyway) performance. Provide appropriate tests.
 
+* Ruby 1.9 compatibility
+  * After all cells should be compatible with ruby 1.8 as well as 1.9
+
 == What is done?
 
 * Support for filters
