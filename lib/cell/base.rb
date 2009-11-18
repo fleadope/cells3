@@ -142,7 +142,6 @@ module Cell
     include AbstractController::RenderingController
 
     class << self
-      attr_accessor :request_forgery_protection_token
 
       # Creates a cell instance of the class <tt>name</tt>Cell, passing through 
       # <tt>opts</tt>.
@@ -197,19 +196,17 @@ module Cell
 
    end
     
-    class_inheritable_accessor :allow_forgery_protection
-    self.allow_forgery_protection = true
-   
     # We should use respond_to instead of that
     class_inheritable_accessor :default_template_format
     self.default_template_format = :html
    
     delegate :params, :session, :request, :logger, :to => :parent_controller
-    
+
     attr_accessor :parent_controller
     attr_reader   :state_name
     
     def initialize(controller, options={})
+      super
       @parent_controller = controller
       @opts       = options
     end
@@ -299,7 +296,7 @@ module Cell
     def normalize_render_options(opts)
       template_format = opts.delete(:template_format)
       view = opts.delete(:view) || opts.delete(:action)
-      formats = [template_format || self.class.default_template_extension]
+      formats = [template_format || self.class.default_template_format]
       if view
         opts[:file] = template_path(view, :formats => formats)
       elsif opts.except(:layout).empty?

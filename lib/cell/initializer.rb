@@ -48,6 +48,10 @@ module Cell
         use_feature(Cell::Caching, enable)
       end
 
+      def use_forgery_protection=(enable)
+        use_feature(Cell::RequestForgeryProtection, enable)
+      end
+
       private
       def use_feature(klass, enable)
         Cell::Base.send(:include, klass) if enable

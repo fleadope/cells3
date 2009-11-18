@@ -32,6 +32,7 @@ Cell::Initializer.run do |cell|
   cell.use_caching = true
   cell.use_filters = true
   cell.use_helpers = true
+  cell.use_forgery_protection = true
 end
 # End of section
 
