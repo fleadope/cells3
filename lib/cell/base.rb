@@ -181,8 +181,7 @@ module Cell
 
     delegate :params, :session, :request, :logger, :to => :parent_controller
 
-    attr_accessor :parent_controller
-    attr_reader   :state_name
+    attr_reader   :parent_controller, :state_name
 
     def initialize(controller, options={})
       @parent_controller = controller
