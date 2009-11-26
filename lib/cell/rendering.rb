@@ -14,18 +14,18 @@ module Cell
       # Render the given state.  You can pass the name as either a symbol or
       # a string.
       def render_state(state)
-        content = process(state)
-        return content if content.is_a?(String)
-
         ### DISCUSS: are these vars really needed in state views?
         @cell       = self
         @state_name = state
-
-        output = self.response_body || render # Implicit render if #render havn't been called explicite
-        # Allow render_state be called twice or more 
-        # So we can render different state without recreating cell
-        self.response_body = nil
-        output
+        
+        output = process(state)
+        if output.is_a?(String)
+          self.response_body = output
+        elsif output.nil?
+          self.response_body = render
+        else
+          raise CellError.new( "#{cell_name}/#{state} must call explicit render" )
+        end
       end
 
       # Render the view for the current state. Usually called at the end of a state method.
@@ -72,9 +72,9 @@ module Cell
       # 
       # <tt>bar_state.html.erb</tt> will be rendered.
       #
-      def render(options = {}, *args)
+      def render(options = {})
         normalize_render_options(options)
-        super(options, *args)
+        render_to_body(options)
       end
 
       def template_path(view, options)
@@ -83,16 +83,10 @@ module Cell
       end
 
       # Normalize the passed options from #render.
-      # TODO: that method is screwed up. Rewrite
       def normalize_render_options(opts)
-        template_format = opts.delete(:template_format)
-        view = opts.delete(:view) || opts.delete(:action)
-        formats = [template_format || self.class.default_template_format]
-        if view
-          opts[:file] = template_path(view, :formats => formats)
-        elsif opts.except(:layout).empty?
-          opts[:file] = template_path(action_name, :formats => formats)
-        end
+        formats = [opts.delete(:template_format) || self.class.default_template_format]
+        view = opts.delete(:view) || opts.delete(:action) || action_name
+        opts[:file] = template_path(view, :formats => formats)
         opts
       end
 

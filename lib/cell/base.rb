@@ -197,4 +197,7 @@ module Cell
     alias :dispatch_state :process
 
   end
+
+  class CellError < StandardError; end
+
 end
