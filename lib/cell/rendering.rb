@@ -68,15 +68,15 @@ module Cell
       end
 
       # Normalize the passed options from #render.
-      def normalize_render_options(options)
-        options[:formats] ||= [options.delete(:template_format) || self.class.default_template_format]
+      def normalize_render_options(options, prefix_lookup = true)
+        options[:formats] ||= Array(options.delete(:template_format) || self.class.default_template_format || :html)
         if (options.keys & [:file, :text, :inline, :nothing, :template]).empty?
-          determine_view_path(options)
+          determine_view_path(options, prefix_lookup) 
         end
         options
       end
 
-      def determine_view_path(options)
+      def determine_view_path(options, prefix_lookup = true)
         if options.has_key?(:partial)
           wanted_path = options[:partial]
           partial = true
@@ -84,7 +84,7 @@ module Cell
           wanted_path = options.delete(:view) || options.delete(:state) || state_name
           options[:template] = wanted_path
         end
-        options[:_prefix] = find_template_prefix(wanted_path, options, partial)
+        options[:_prefix] = find_template_prefix(wanted_path, options, partial) if prefix_lookup
       end
 
       # overridden to use Cell::View instead of ActionView::Base
@@ -95,21 +95,9 @@ module Cell
       # Climbs up the inheritance hierarchy of the Cell, looking for a view 
       # for the current <tt>state</tt> in each level.
       def find_template_prefix(state, details, partial = false)
-        returning possible_view_paths.detect { |path| view_paths.exists?( state.to_s, details, path, partial ) } do |path|
+        returning inheritance_path.detect { |path| view_paths.exists?( state.to_s, details, path, partial ) } do |path|
           raise ::ActionView::MissingTemplate.new(view_paths, state.to_s) unless path
         end
-      end
-
-      # Find possible files that belong to the state.  This first tries the cell's
-      # <tt>#view_for_state</tt> method and if that returns a true value, it
-      # will accept that value as a string and interpret it as a pathname for
-      # the view file. If it returns a falsy value, it will call the Cell's class
-      # method find_class_view_for_state to determine the file to check.
-      #
-      # You can override the Cell::Base#view_for_state method for a particular
-      # cell if you wish to make it decide dynamically what file to render.
-      def possible_view_paths
-        ::Cell::Base.inheritance_path
       end
 
       # Defines the instance variables that should <em>not</em> be copied to the 

@@ -143,14 +143,14 @@ module Cell
 
     include Rendering
 
+    class_inheritable_accessor :inheritance_path
+    self.inheritance_path = []
+    
     class << self
-      def inherited(klass)
-        ::Cell::Base.inheritance_path.unshift(klass.cell_name)
-        super
-      end
 
-      def inheritance_path
-        @inheritance_path ||= []
+      def inherited(klass)
+        # not using inheritale_array as we need reverse order
+        klass.inheritance_path = [klass.cell_name] + inheritance_path
       end
 
       # Creates a cell instance of the class <tt>name</tt>Cell, passing through 
