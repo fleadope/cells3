@@ -77,37 +77,20 @@ module Cell
         render_to_body(options)
       end
 
-      def template_path(view, options)
-        # Have to add following slash as path must be absolute
-        "/#{find_template_path(view, options)}"
-      end
-
       # Normalize the passed options from #render.
       def normalize_render_options(opts)
         formats = [opts.delete(:template_format) || self.class.default_template_format]
-        view = opts.delete(:view) || opts.delete(:action) || action_name
-        opts[:file] = template_path(view, :formats => formats)
+        opts[:action] ||= opts.delete(:view) || opts.delete(:state) || state_name
+        opts[:_prefix] = find_template_path(opts[:action], :formats => formats)
         opts
       end
 
       # Climbs up the inheritance hierarchy of the Cell, looking for a view 
       # for the current <tt>state</tt> in each level.
       def find_template_path(state, options)
-        returning possible_paths_for_state(state).detect { |path| view_paths.exists?( path, options ) } do |path|
+        returning possible_view_paths.detect { |path| view_paths.exists?( "#{path}/#{state}", options ) } do |path|
           raise ::ActionView::MissingTemplate.new(view_paths, state.to_s) unless path
         end
-      end
-
-      # In production mode, the view for a state/template_extension is cached.
-      ### DISCUSS: ActionView::Base already caches results for #pick_template, so maybe
-      ### we should just cache the family path for a state/format?
-      def find_family_view_for_state_with_caching(state, action_view)
-        return find_family_view_for_state(state, action_view) unless self.class.cache_configured?
-
-        # in production mode:
-        key         = "#{state}/#{action_view.template_extension}"
-        state2view  = self.class.state2view_cache
-        state2view[key] || state2view[key] = find_family_view_for_state(state, action_view)
       end
 
       # Find possible files that belong to the state.  This first tries the cell's
@@ -118,8 +101,8 @@ module Cell
       #
       # You can override the Cell::Base#view_for_state method for a particular
       # cell if you wish to make it decide dynamically what file to render.
-      def possible_paths_for_state(state)
-        self.class.find_class_view_for_state(state).reverse!
+      def possible_view_paths
+        ::Cell::Base.inheritance_path
       end
 
       # Defines the instance variables that should <em>not</em> be copied to the 
@@ -127,31 +110,6 @@ module Cell
       def protected_instance_variables  
         ['@parent_controller'] 
       end
-
-    end
-
-    module ClassMethods
-
-      # Return the default view for the given state on this cell subclass.
-      # This is a file with the name of the state under a directory with the
-      # name of the cell followed by a template extension.
-      def view_for_state(state)
-        "#{cell_name}/#{state}"
-      end
-
-      # Find a possible template for a cell's current state.  It tries to find a
-      # template file with the name of the state under a subdirectory
-      # with the name of the cell under the <tt>app/cells</tt> directory.
-      # If this file cannot be found, it will try to call this method on
-      # the superclass.  This way you only have to write a state template
-      # once when a more specific cell does not need to change anything in
-      # that view.
-      def find_class_view_for_state(state)
-        return [view_for_state(state)] if superclass == Cell::Base
-
-        superclass.find_class_view_for_state(state) << view_for_state(state)
-      end
-
 
     end
 

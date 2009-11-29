@@ -144,6 +144,15 @@ module Cell
     include Rendering
 
     class << self
+      def inherited(klass)
+        ::Cell::Base.inheritance_path.unshift(klass.cell_name)
+        super
+      end
+
+      def inheritance_path
+        @inheritance_path ||= []
+      end
+
       # Creates a cell instance of the class <tt>name</tt>Cell, passing through 
       # <tt>opts</tt>.
       def create_cell_for(controller, name, opts={})
@@ -167,10 +176,6 @@ module Cell
       # => UserCell
       def class_from_cell_name(cell_name)
         "#{cell_name}_cell".classify.constantize
-      end
-
-      def state2view_cache
-        @state2view_cache ||= {}
       end
 
       def cache_configured? 
