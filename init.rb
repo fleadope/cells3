@@ -28,7 +28,7 @@ Cell::Base
 
 # This section should be moved to config/initializers/cells.rb
 Cell::Initializer.run do |cell|
-  cell.use_layouts = true
+  cell.use_layouts = false
   cell.use_caching = true
   cell.use_filters = true
   cell.use_helpers = true
