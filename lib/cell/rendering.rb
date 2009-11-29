@@ -56,21 +56,11 @@ module Cell
       # You can use usual render options as weel
       #
       # Example:
-      #   render :action => 'foo'
+      #   render :view => 'foo'
+      #   render :state => 'bar'
       #   render :text => 'Hello Cells'
-      #   render :inline => 'Welcome'
+      #   render :inline => 'Welcome <%= @text %>'
       #   render :file => 'another_cell/foo'
-      #
-      # But you're not obligated to use render at all.
-      #
-      # class BarCell < Cell::Base
-      # 
-      #   def bar_state
-      #   end
-      #
-      # end
-      # 
-      # <tt>bar_state.html.erb</tt> will be rendered.
       #
       def render(options = {})
         normalize_render_options(options)
@@ -78,13 +68,23 @@ module Cell
       end
 
       # Normalize the passed options from #render.
-      def normalize_render_options(opts)
-        opts[:formats] ||= [opts.delete(:template_format) || self.class.default_template_format]
-        if (opts.keys & [:file, :text, :inline, :nothing, :partial, :template]).empty?
-          opts[:template] ||= opts.delete(:view) || opts.delete(:state) || state_name
-          opts[:_prefix] = find_template_path(opts[:template], :formats => opts[:formats])
+      def normalize_render_options(options)
+        options[:formats] ||= [options.delete(:template_format) || self.class.default_template_format]
+        if (options.keys & [:file, :text, :inline, :nothing, :template]).empty?
+          determine_view_path(options)
         end
-        opts
+        options
+      end
+
+      def determine_view_path(options)
+        if options.has_key?(:partial)
+          wanted_path = options[:partial]
+          partial = true
+        else
+          wanted_path = options.delete(:view) || options.delete(:state) || state_name
+          options[:template] = wanted_path
+        end
+        options[:_prefix] = find_template_prefix(wanted_path, options, partial)
       end
 
       # overridden to use Cell::View instead of ActionView::Base
@@ -94,8 +94,8 @@ module Cell
 
       # Climbs up the inheritance hierarchy of the Cell, looking for a view 
       # for the current <tt>state</tt> in each level.
-      def find_template_path(state, options)
-        returning possible_view_paths.detect { |path| view_paths.exists?( state.to_s, options, path ) } do |path|
+      def find_template_prefix(state, details, partial = false)
+        returning possible_view_paths.detect { |path| view_paths.exists?( state.to_s, details, path, partial ) } do |path|
           raise ::ActionView::MissingTemplate.new(view_paths, state.to_s) unless path
         end
       end
