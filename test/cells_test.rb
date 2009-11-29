@@ -231,11 +231,12 @@ class CellsTest < ActionController::TestCase
   
   # test view inheritance ------------------------------------------------------
   
-  def test_possible_paths_for_state
+  def test_possible_view_paths
     t = MyChildCell.new(@controller)
-    p = t.possible_paths_for_state(:bye)
-    assert_equal "my_child/bye", p.first
-    assert_equal "my_mother/bye", p.last
+    p = t.inheritance_path
+    puts p.inspect
+    assert_equal "my_child", p.first
+    assert_equal "my_mother", p.last
   end
   
   
@@ -278,18 +279,16 @@ class CellsTest < ActionController::TestCase
     assert_equal :js, u.class.default_template_format
   end
   
-  def test_defaultize_render_options_for
+  def test_normalize_render_options
     u = MyTestCell.new(@controller)
-    assert_equal( {:template_format => :html, :view => :do_it}, 
-      u.defaultize_render_options_for(nil, :do_it))
-    assert_equal( {:template_format => :html, :view => :do_it}, 
-      u.defaultize_render_options_for({}, :do_it))
-    assert_equal( {:template_format => :js, :view => :do_it},
-      u.defaultize_render_options_for({:template_format => :js}, :do_it))
-    assert_equal( {:template_format => :html, :layout => :metal, :view => :do_it},
-      u.defaultize_render_options_for({:layout => :metal}, :do_it))
-    assert_equal( {:template_format => :js, :layout => :metal, :view => :do_it}, 
-      u.defaultize_render_options_for({:layout => :metal, :template_format => :js}, :do_it))
+    assert_equal( {:formats => [:html], :template => :do_it}, 
+      u.normalize_render_options({:view => :do_it}, false))
+    assert_equal( {:formats => [:js], :template => :do_it},
+      u.normalize_render_options({:template_format => :js, :view => :do_it}, false))
+    assert_equal( {:formats => [:html], :layout => :metal, :template => :do_it},
+      u.normalize_render_options({:layout => :metal, :view => :do_it }, false))
+    assert_equal( {:formats => [:js], :layout => :metal, :template => :do_it}, 
+      u.normalize_render_options({:layout => :metal, :template_format => :js, :view => :do_it}, false))
   end
 
   def test_new_directory_hierarchy
