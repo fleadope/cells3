@@ -79,16 +79,23 @@ module Cell
 
       # Normalize the passed options from #render.
       def normalize_render_options(opts)
-        formats = [opts.delete(:template_format) || self.class.default_template_format]
-        opts[:action] ||= opts.delete(:view) || opts.delete(:state) || state_name
-        opts[:_prefix] = find_template_path(opts[:action], :formats => formats)
+        opts[:formats] ||= [opts.delete(:template_format) || self.class.default_template_format]
+        if (opts.keys & [:file, :text, :inline, :nothing, :partial, :template]).empty?
+          opts[:template] ||= opts.delete(:view) || opts.delete(:state) || state_name
+          opts[:_prefix] = find_template_path(opts[:template], :formats => opts[:formats])
+        end
         opts
+      end
+
+      # overridden to use Cell::View instead of ActionView::Base
+      def view_context
+        @_view_context ||= Cell::View.for_controller(self)
       end
 
       # Climbs up the inheritance hierarchy of the Cell, looking for a view 
       # for the current <tt>state</tt> in each level.
       def find_template_path(state, options)
-        returning possible_view_paths.detect { |path| view_paths.exists?( "#{path}/#{state}", options ) } do |path|
+        returning possible_view_paths.detect { |path| view_paths.exists?( state.to_s, options, path ) } do |path|
           raise ::ActionView::MissingTemplate.new(view_paths, state.to_s) unless path
         end
       end
