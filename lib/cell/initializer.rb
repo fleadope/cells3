@@ -31,13 +31,7 @@ module Cell
       end
 
       def use_helpers=(enable)
-        use_feature(AbstractController::Helpers, enable)
-        #TODO: discuss we should enable ApplicationHelper by default
-        #maybe introduce something like
-        # cell.use_helpers ApplicationHelper, NewsHelper
-        # cell.use_helpers :default
-        # cell.use_helpers :all
-        Cell::Base.helper ApplicationHelper 
+        use_feature(Cell::Helpers, enable)
       end
 
       def use_filters=(enable)
@@ -46,10 +40,6 @@ module Cell
 
       def use_caching=(enable)
         use_feature(Cell::Caching, enable)
-      end
-
-      def use_forgery_protection=(enable)
-        use_feature(Cell::RequestForgeryProtection, enable)
       end
 
       private
