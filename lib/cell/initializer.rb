@@ -27,7 +27,7 @@ module Cell
       end
 
       def use_layouts=(enable)
-        use_feature(AbstractController::Layouts, enable)
+        use_feature(Cell::Layouts, enable)
       end
 
       def use_helpers=(enable)

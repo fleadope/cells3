@@ -149,6 +149,7 @@ module Cell
     class << self
 
       def inherited(klass)
+        super
         # not using inheritale_array as we need reverse order
         klass.inheritance_path = [klass.cell_name] + inheritance_path
       end
