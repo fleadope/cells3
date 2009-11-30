@@ -1,5 +1,3 @@
-#TODO: remove require after cleaning plugin directories layout
-require 'cell/rendering'
 module Cell
   # == Basic overview
   #

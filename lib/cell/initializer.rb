@@ -27,11 +27,11 @@ module Cell
       end
 
       def use_layouts=(enable)
-        use_feature(Cell::Layouts, enable)
+        use_feature(Cell::Features::Layouts, enable)
       end
 
       def use_helpers=(enable)
-        use_feature(Cell::Helpers, enable)
+        use_feature(Cell::Features::Helpers, enable)
       end
 
       def use_filters=(enable)
@@ -39,7 +39,7 @@ module Cell
       end
 
       def use_caching=(enable)
-        use_feature(Cell::Caching, enable)
+        use_feature(Cell::Features::Caching, enable)
       end
 
       private
