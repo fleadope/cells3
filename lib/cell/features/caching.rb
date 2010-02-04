@@ -1,3 +1,4 @@
+#TODO: this module have to be rewritten
 # To improve performance rendered state views can be cached using Rails' caching
 # mechanism.
 # If this it configured (e.g. using our fast friend memcached) all you have to do is to 

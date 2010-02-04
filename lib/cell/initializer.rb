@@ -35,7 +35,7 @@ module Cell
       end
 
       def use_filters=(enable)
-        use_feature(AbstractController::Callbacks, enable)
+        use_feature(Cell::Features::Callbacks, enable)
       end
 
       def use_caching=(enable)
