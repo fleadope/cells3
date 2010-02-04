@@ -2,7 +2,7 @@ module Cell
   module Rendering
     extend ActiveSupport::Concern
 
-    include AbstractController::RenderingController
+    include AbstractController::Rendering
     included do
       # We should use respond_to instead of that
       class_inheritable_accessor :default_template_format
