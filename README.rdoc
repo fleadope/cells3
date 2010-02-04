@@ -2,9 +2,21 @@
 
 Just as Rails 3.0 current Cells version is under heavy development so use it only if you're curious about progress.
 
+Didn't you hear about cells? Check it here http://cells.rubyforge.org
+
 == Working app setup
 
-Go to http://github.com/mlomnicki/rails3_setup and follow the instructions.
+  sudo gem install thor bundler
+  git clone git://github.com/rails/rails.git
+  cd rails
+  ruby -rubgems railties/bin/rails ../cells3 --dev
+  cd ../cells3
+  script/rails plugin install git://github.com/mlomnicki/cells3.git
+  bundler install  
+  # create view and some cells
+  script/rails server
+
+Check <tt>localhost:3000</tt> - it is powered by Rails 3.0 and Cells 3.0 now.
 
 == What will be done?
 
@@ -45,7 +57,6 @@ Go to http://github.com/mlomnicki/rails3_setup and follow the instructions.
 
 == What is broken?
 
-* RequestForgeryProtection (but is it really needed here?)
 * Backward compatitbility: 
   * parent controller accessible as #parent_controller, not #controller as always
   * returning string from cell state doesn't render it. Need explicity render :text => 'foobar'
