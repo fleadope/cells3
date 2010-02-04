@@ -3,7 +3,11 @@ require File.dirname(__FILE__) + '/testing_helper'
 
 class ACell < Cell::Base
   def existing_view
-    @a = "a"; nil
+    @a = "a"
+    render
+  rescue Exception => e
+    puts e.message
+    puts e.backtrace.join("\n")
   end
 end
 
@@ -12,14 +16,13 @@ end
 
 class RenderCellTest < ActionController::TestCase
   include CellsTestMethods
-  include Cell::ActionController
   
   def test_render_cell
-    assert_equal "A/existing_view/a", render_cell(:a, :existing_view)
+    assert_equal "A/existing_view/a", @controller.render_cell(:a, :existing_view)
   end
   
   # #render_cell_to_string is just an alias of #render_cell
   def test_render_cell_to_string
-    assert_equal render_cell_to_string(:a, :existing_view), render_cell(:a, :existing_view)
+    assert_equal @controller.render_cell_to_string(:a, :existing_view), @controller.render_cell(:a, :existing_view)
   end
 end

@@ -17,12 +17,12 @@ module Cell
         ### DISCUSS: are these vars really needed in state views?
         @cell       = self
         @state_name = state
-        
+
         output = process(state)
         if output.is_a?(String)
           self.response_body = output
         elsif output.nil?
-          self.response_body = render
+          self.response_body = render.chomp #TODO: why \n is appended?
         else
           raise CellError.new( "#{cell_name}/#{state} must call explicit render" )
         end
@@ -69,7 +69,7 @@ module Cell
 
       # Normalize the passed options from #render.
       def normalize_render_options(options, prefix_lookup = true)
-        options[:formats] ||= Array(options.delete(:template_format) || self.class.default_template_format || :html)
+        options[:formats] ||= Array(options.delete(:template_format) || self.class.default_template_format)
         if (options.keys & [:file, :text, :inline, :nothing, :template]).empty?
           determine_view_path(options, prefix_lookup) 
         end
@@ -79,6 +79,7 @@ module Cell
       def determine_view_path(options, prefix_lookup = true)
         if options.has_key?(:partial)
           wanted_path = options[:partial]
+          prefix_lookup = false if wanted_path =~ %r{/}
           partial = true
         else
           wanted_path = options.delete(:view) || options.delete(:state) || state_name
