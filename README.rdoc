@@ -6,13 +6,9 @@ Didn't you hear about cells? Check it here http://cells.rubyforge.org
 
 == Working app setup
 
-  sudo gem install thor bundler
-  git clone git://github.com/rails/rails.git
-  cd rails
-  ruby -rubgems railties/bin/rails ../cells3 --dev
-  cd ../cells3
+  Go to http://weblog.rubyonrails.org/2010/2/5/rails-3-0-beta-release and follow the instruction to install rails3
+  rails cells_rails3
   script/rails plugin install git://github.com/mlomnicki/cells3.git
-  bundler install  
   # create view and some cells
   script/rails server
 
