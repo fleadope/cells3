@@ -1,4 +1,4 @@
-require 'rails/generators/erb'
+require 'generators/erb'
 
 module Erb
   module Generators
