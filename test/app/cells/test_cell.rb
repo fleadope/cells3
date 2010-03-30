@@ -27,4 +27,9 @@ class TestCell < ::Cell::Base
   def state_using_params
     params[:my_param].to_s
   end
+
+  def authenticity_token
+    render 
+  end
+
 end
