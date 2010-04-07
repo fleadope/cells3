@@ -139,7 +139,6 @@ module Cells
     # If gettext is set to DE_de, the latter view will be chosen.
     class Base
       include ::ActionController::Helpers
-      include ::ActionController::RequestForgeryProtection
       
       class_inheritable_array :view_paths, :instance_writer => false
       write_inheritable_attribute(:view_paths, ActionView::PathSet.new) # Force use of a PathSet in this attribute, self.view_paths = ActionView::PathSet.new would still yield in an array
@@ -228,15 +227,15 @@ module Cells
           ::ActionController::Base.cache_configured?
         end
       end
-      
-
-      class_inheritable_accessor :allow_forgery_protection
-      self.allow_forgery_protection = true
 
       class_inheritable_accessor :default_template_format
       self.default_template_format = :html
 
-      delegate :params, :session, :request, :logger, :to => :controller
+      delegate :params, :session, :request, :logger,
+               :request_forgery_protection_token, :allow_forgery_protection, 
+               :form_authenticity_token, :protect_against_forgery?, :to => :controller
+
+      helper_method :protect_against_forgery?, :form_authenticity_token
 
       attr_accessor :controller
       attr_reader   :state_name
