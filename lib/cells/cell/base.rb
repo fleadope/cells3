@@ -1,5 +1,6 @@
 # encoding: utf-8
-require 'action_controller/base'
+require 'abstract_controller/base'
+require 'abstract_controller/helpers'
 
 module Cells
   module Cell
@@ -138,7 +139,7 @@ module Cells
     #
     # If gettext is set to DE_de, the latter view will be chosen.
     class Base
-      include ::ActionController::Helpers
+      include ::AbstractController::Helpers
       
       class_inheritable_array :view_paths, :instance_writer => false
       write_inheritable_attribute(:view_paths, ActionView::PathSet.new) # Force use of a PathSet in this attribute, self.view_paths = ActionView::PathSet.new would still yield in an array
@@ -164,20 +165,6 @@ module Cells
         # <tt>opts</tt>.
         def create_cell_for(controller, name, opts={})
           class_from_cell_name(name).new(controller, opts)
-        end
-
-        # Declare a controller method as a helper.  For example,
-        #   helper_method :link_to
-        #   def link_to(name, options) ... end
-        # makes the link_to controller method available in the view.
-        def helper_method(*methods)
-          methods.flatten.each do |method|
-            master_helper_module.module_eval <<-end_eval
-              def #{method}(*args, &block)
-                @cell.send(:#{method}, *args, &block)
-              end
-            end_eval
-          end
         end
 
         # Return the default view for the given state on this cell subclass.
@@ -224,7 +211,7 @@ module Cells
         end
 
         def cache_configured?
-          ::ActionController::Base.cache_configured?
+          ::ActionController::Base.perform_caching
         end
       end
 
