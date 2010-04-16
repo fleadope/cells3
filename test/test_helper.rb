@@ -55,16 +55,17 @@ Dir[File.join(test_app_path, *%w[helpers ** *.rb]).to_s].each { |f| require f }
 
 require 'cells'
 
-Cell::Base.add_view_path File.join(test_app_path, 'cells')
-Cell::Base.add_view_path File.join(test_app_path, 'cells', 'layouts')
+Cell::Base.append_view_path File.join(test_app_path, 'cells')
+Cell::Base.append_view_path File.join(test_app_path, 'cells', 'layouts')
 
 # Now, load the rest.
 Dir[File.join(test_app_path, *%w[controllers ** *.rb]).to_s].each { |f| require f }
 
 # We need to setup a fake route for the controller tests.
-ActionController::Routing::Routes.draw do |map|
-  map.connect 'cells_test/:action', :controller => 'cells_test'
-end
+# TODO: do it in rails3-style
+#ActionController::Routing::Routes.draw do |map|
+#  map.connect 'cells_test/:action', :controller => 'cells_test'
+#end
 
 # Load test support files.
 Dir[File.join(File.dirname(__FILE__), *%w[support ** *.rb]).to_s].each { |f| require f }

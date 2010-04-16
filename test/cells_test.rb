@@ -124,7 +124,7 @@ class CellsTest < ActionController::TestCase
       paths = Cell::Base.view_paths
       assert_kind_of ActionView::PathSet, paths, "must not wipe out the PathSet"
       assert_equal 3, Cell::Base.view_paths.size
-      assert_equal %w(you are here), Cell::Base.view_paths
+      assert_equal %w(you are here), Cell::Base.view_paths.collect { |resolver| File.basename(resolver.to_path) }
     end
   end
   
@@ -224,8 +224,8 @@ class CellsTest < ActionController::TestCase
     cell = MyChildCell.new(@controller)
     cell_paths = cell.possible_paths_for_state(:bye)
 
-    assert_equal 'my_child/bye', cell_paths.first
-    assert_equal 'my_mother/bye', cell_paths.last
+    assert_equal 'my_child', cell_paths.first
+    assert_equal 'my_mother', cell_paths.last
   end
 
   def test_render_state_on_child_where_child_view_exists
@@ -245,12 +245,14 @@ class CellsTest < ActionController::TestCase
 
   # test Cell::View -------------------------------------------------------------
 
-  def test_find_family_view_for_state
+  def test_find_template
     cell = MyChildCell.new(@controller)
     cells_path = File.join(File.dirname(__FILE__), 'app', 'cells')
-    cell_template = cell.find_family_view_for_state(:bye, ::Cell::View.new([cells_path], {}, @controller))
+    cell_template = cell.find_template(:bye, :formats => [:html], :handlers => [:erb], :locale => [:en])
 
-    assert_equal 'my_mother/bye.html.erb', cell_template.path
+    assert_equal 'my_mother/bye', cell_template.virtual_path
+    assert_equal :html, cell_template.formats.first
+    assert_equal ActionView::TemplateHandlers::ERB, cell_template.handler
   end
 
   ### API test (unit) -----------------------------------------------------------

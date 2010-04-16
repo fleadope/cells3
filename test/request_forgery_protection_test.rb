@@ -8,8 +8,7 @@ class RequestForgeryProtectionTest < ActionController::TestCase
 
     setup do
       @cell = cell(:test)
-      @cell.controller.session = {}
-      @cell.controller.class.protect_from_forgery
+      @cell.parent_controller.class.protect_from_forgery
     end
 
     should "cell protect against forgery as well" do 
@@ -17,7 +16,7 @@ class RequestForgeryProtectionTest < ActionController::TestCase
     end
 
     should "provide authenticity param" do
-      assert_equal @cell.controller.send(:form_authenticity_token), @cell.render_state(:authenticity_token).strip
+      assert_equal @cell.parent_controller.send(:form_authenticity_token), @cell.render_state(:authenticity_token).strip
     end
 
   end

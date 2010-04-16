@@ -33,6 +33,10 @@ class HelperUsingCell < ::Cell::Base
     render
   end
 
+  def state_with_url_for
+    render :inline => "<%= url_for '/test' %>"
+  end
+
   protected
 
     def my_helper_method
@@ -126,11 +130,6 @@ class HelperTest < ActionController::TestCase
 
   def test_rails_helper_url_for
     cell = HelperUsingCell.new(@controller)
-    cell.instance_eval do
-      def state_with_url_for
-        render :inline => "<%= url_for '/test' %>"
-      end
-    end
     c = cell.render_state(:state_with_url_for)
 
     assert_equal '/test', c
