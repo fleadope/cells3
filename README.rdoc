@@ -1,3 +1,10 @@
+= Current Status
+
+Currently work on cells3 is done on integration branch
+http://github.com/mlomnicki/cells3/tree/integration
+
+Basic features are almost finished so it'll be merged to master soon...
+
 = Cells3 - Cells port for Rails 3.0
 
 Just as Rails 3.0 current Cells version is under heavy development so use it only if you're curious about progress.
