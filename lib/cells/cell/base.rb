@@ -138,29 +138,13 @@ module Cells
     #   cells/user/user_form_de.html.erb
     #
     # If gettext is set to DE_de, the latter view will be chosen.
-    class Base
+    class Base < AbstractController::Base
       include ::AbstractController::Helpers
-      
-      class_inheritable_array :view_paths, :instance_writer => false
-      write_inheritable_attribute(:view_paths, ActionView::PathSet.new) # Force use of a PathSet in this attribute, self.view_paths = ActionView::PathSet.new would still yield in an array
+      include ::AbstractController::Layouts
       
       class << self
         attr_accessor :request_forgery_protection_token
         
-        # Use this if you want Cells to look up view templates
-        # in directories other than the default.
-        def view_paths=(paths)
-          self.view_paths.clear.concat(paths) # don't let 'em overwrite the PathSet.
-        end
-        
-        # A template file will be looked for in each view path. This is typically
-        # just RAILS_ROOT/app/cells, but you might want to add e.g.
-        # RAILS_ROOT/app/views.
-        def add_view_path(path)
-          path = ::Rails.root.join(path) if defined?(::Rails)
-          self.view_paths << path unless self.view_paths.include?(path)
-        end
-
         # Creates a cell instance of the class <tt>name</tt>Cell, passing through
         # <tt>opts</tt>.
         def create_cell_for(controller, name, opts={})
@@ -171,7 +155,7 @@ module Cells
         # This is a file with the name of the state under a directory with the
         # name of the cell followed by a template extension.
         def view_for_state(state)
-          "#{cell_name}/#{state}"
+          "#{cell_name}"
         end
 
         # Find a possible template for a cell's current state.  It tries to find a
@@ -213,6 +197,33 @@ module Cells
         def cache_configured?
           ::ActionController::Base.perform_caching
         end
+
+        def action_methods(*args)
+          @action_methods = nil
+          super(*args)
+        end
+
+        # this chunk is copied from AbstractController::Rendering.
+        # We only need to change ActionView::Base to Cell::View,
+        # so it should be done in better way soon
+        def view_context_class
+          @view_context_class ||= begin
+            controller = self
+            Class.new(Cell::View) do
+              if controller.respond_to?(:_helpers)
+                include controller._helpers
+
+                if controller.respond_to?(:_router)
+                  include controller._router.url_helpers
+                end
+
+                # TODO: Fix RJS to not require this
+                self.helpers = controller._helpers
+              end
+            end
+          end
+        end
+      
       end
 
       class_inheritable_accessor :default_template_format
@@ -220,15 +231,17 @@ module Cells
 
       delegate :params, :session, :request, :logger,
                :request_forgery_protection_token, :allow_forgery_protection, 
-               :form_authenticity_token, :protect_against_forgery?, :to => :controller
+               :form_authenticity_token, :protect_against_forgery?, :to => :parent_controller
 
       helper_method :protect_against_forgery?, :form_authenticity_token
 
-      attr_accessor :controller
+      attr_accessor :parent_controller
       attr_reader   :state_name
 
+      alias :controller :parent_controller
+
       def initialize(controller, options={})
-        @controller = controller
+        @parent_controller = controller
         @opts       = options
       end
 
@@ -242,17 +255,15 @@ module Cells
         @cell       = self
         @state_name = state
 
-        content = dispatch_state(state)
+        content = process(state)
 
         return content if content.kind_of? String
 
         render_view_for_backward_compat(content, state)
       end
 
-      # Call the state method.
-      def dispatch_state(state)
-        send(state)
-      end
+      # Apotomo compatibility
+      alias :dispatch_state :process_action
 
       # We will soon remove the implicit call to render_view_for, but here it is for your convenience.
       def render_view_for_backward_compat(opts, state)
@@ -319,8 +330,6 @@ module Cells
       def render_view_for(opts, state)
         return '' if opts[:nothing]
 
-        action_view = setup_action_view
-
         ### TODO: dispatch dynamically:
         if    opts[:text]
         elsif opts[:inline]
@@ -331,38 +340,27 @@ module Cells
           # handle :layout, :template_format, :view
           opts = defaultize_render_options_for(opts, state)
 
-          # set instance vars, include helpers:
-          prepare_action_view_for(action_view, opts)
-
-          template    = find_family_view_for_state_with_caching(opts[:view], action_view)
-          opts[:file] = template
+          determine_view_path(opts)
         end
 
         opts = sanitize_render_options(opts)
 
-        action_view.render_for(opts)
+        # FIXME: \n is removed to fix tests
+        # Figure out why is it added 
+        render_to_body(opts).sub(/\n$/, '')
       end
 
       # Defaultize the passed options from #render.
       def defaultize_render_options_for(opts, state)
-        opts[:template_format]  ||= self.class.default_template_format
-        opts[:view]             ||= state
+        template_format = opts.delete(:template_format)
+        opts[:formats]  ||= [template_format || self.class.default_template_format]
+        # if template_format = js then both view and layout is rendered as js
+        # template. Below is workaround for rendering html layout if no js given
+        opts[:formats]  << :html unless opts[:formats].include?(:html)
+        opts[:locale]   ||= [:en]
+        opts[:handlers] ||= [:haml, :erb, :rjs, :rhtml]
+        opts[:view]     ||= state
         opts
-      end
-
-      def prepare_action_view_for(action_view, opts)
-        # make helpers available:
-        include_helpers_in_class(action_view.class)
-
-        action_view.assigns         = assigns_for_view  # make instance vars available.
-        action_view.template_format = opts[:template_format]
-      end
-
-      def setup_action_view
-        view_class  = Class.new(::Cells::Cell::View)
-        action_view = view_class.new(self.class.view_paths, {}, @controller)
-        action_view.cell = self
-        action_view
       end
 
       # Prepares <tt>opts</tt> to be passed to ActionView::Base#render by removing
@@ -404,6 +402,30 @@ module Cells
         state2view  = self.class.state2view_cache
         state2view[key] || state2view[key] = find_family_view_for_state(state, action_view)
       end
+      
+      def determine_view_path(options, prefix_lookup = true)
+        if options.has_key?(:partial)
+          wanted_path = options[:partial]
+          prefix_lookup = false if wanted_path =~ %r{/}
+          partial = true
+        else
+          wanted_path = options.delete(:view) || options.delete(:state) || state_name
+        end
+        options[:template] = find_template(wanted_path, options, partial) 
+      end
+
+      # Climbs up the inheritance hierarchy of the Cell, looking for a view 
+      # for the current <tt>state</tt> in each level.
+      def find_template(state, details, partial = false)
+        paths = nil
+        possible_paths_for_state(state).detect do |path|
+          paths = view_paths.find_all(state.to_s, path, partial, details)
+          paths.present?
+        end
+        raise ::ActionView::MissingTemplate.new(view_paths, state.to_s, details, partial) if paths.blank?
+        paths.first
+      end
+
 
       # Find possible files that belong to the state.  This first tries the cell's
       # <tt>#view_for_state</tt> method and if that returns a true value, it
@@ -417,30 +439,14 @@ module Cells
         self.class.find_class_view_for_state(state).reverse!
       end
 
-      # Prepares the hash {instance_var => value, ...} that should be available
-      # in the ActionView when rendering the state view.
-      def assigns_for_view
-        assigns = {}
-        (self.instance_variables - ivars_to_ignore).each do |k|
-         assigns[k[1..-1]] = instance_variable_get(k)
-        end
-        assigns
-      end
-
-      # When passed a copy of the ActionView::Base class, it
-      # will mix in all helper classes for this cell in that class.
-      def include_helpers_in_class(view_klass)
-        view_klass.send(:include, self.class.master_helper_module)
-      end
-
       # Defines the instance variables that should <em>not</em> be copied to the
       # View instance.
-      def ivars_to_ignore;  ['@controller']; end
-      
+      def ivars_to_ignore;  ['@parent_controller']; end
+
       ### TODO: allow log levels.
       def log(message)
-        return unless @controller.logger
-        @controller.logger.debug(message)
+        return unless parent_controller.logger
+        parent_controller.logger.debug(message)
       end
     end
   end
