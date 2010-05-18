@@ -54,7 +54,7 @@ begin
   require 'jeweler'
 
   Jeweler::Tasks.new do |spec|
-    spec.name         = "cells"
+    spec.name         = "cells3"
     spec.version      = ::Cells::VERSION.dup # rubygems force to call strip! on version and fails because it is frozen
     spec.summary      = %{Cells are lightweight controllers for Rails and can be rendered in controllers and views, providing an elegant and fast way for encapsulation and component-orientation.}
     spec.description  = spec.summary

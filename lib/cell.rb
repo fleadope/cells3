@@ -1,4 +1,4 @@
-require 'cells'
+require 'cells3'
 
 # Make cell class interface leaner, i.e. ::Cell::Base < ::Cells::Cell::Base, etc.
 # Note: Reason for doing like so is to make load path-resolving complexity to a minimum.
