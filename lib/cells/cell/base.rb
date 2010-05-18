@@ -141,6 +141,7 @@ module Cells
     class Base < AbstractController::Base
       include ::AbstractController::Helpers
       include ::AbstractController::Layouts
+      include ::AbstractController::Callbacks
       
       class << self
         attr_accessor :request_forgery_protection_token
