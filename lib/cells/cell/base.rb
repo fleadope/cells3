@@ -269,6 +269,7 @@ module Cells
       def render_view_for_backward_compat(opts, state)
         ::ActiveSupport::Deprecation.warn "You either didn't call #render or forgot to return a string in the state method '#{state}'. However, returning nil is deprecated for the sake of explicitness"
 
+        opts ||= {}
         render_view_for(opts, state)
       end
 
