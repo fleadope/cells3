@@ -13,7 +13,7 @@ features as well (callbacks for example)
 = Installation
 
 Preffered way - gem
-    sudo gem install cells3 -v=3.0.0.beta3
+    sudo gem install cells3 
 
 or as plugin
     script/plugin install git://github.com/mlomnicki/cells3.git
