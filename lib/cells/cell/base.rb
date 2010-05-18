@@ -145,6 +145,8 @@ module Cells
       
       class << self
         attr_accessor :request_forgery_protection_token
+
+        delegate :cache_configured?, :to => ActionController::Base
         
         # Creates a cell instance of the class <tt>name</tt>Cell, passing through
         # <tt>opts</tt>.
