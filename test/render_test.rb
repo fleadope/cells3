@@ -28,6 +28,11 @@ end
 class RenderTest < ActiveSupport::TestCase
   include Cells::Rails::ActionView
 
+  # FIXME: just to satisfy cells methods
+  def controller
+    @controller ||= ActionController::Base.new
+  end
+
   def test_return_nil_with_locally_existing_view
     assert_equal 'A/existing_view/a', render_cell(:a, :existing_view)
     assert_equal 'B/existing_view/b', render_cell(:b, :existing_view)
